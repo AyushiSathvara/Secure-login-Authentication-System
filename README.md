@@ -1,3 +1,11 @@
-# Secure-login-Authentication-System
-Diploma Engineering college First project for cyber security,
-open and run app.py or run .py for the see website
+# CyberGuard - Secure Login Authentication System
+
+CyberGuard is a cybersecurity project developed using Flask and MySQL.
+
+Features:
+- Secure Login/Register
+- Password Hashing
+- OTP Verification
+- Database Integration
+- Cybersecurity Blog
+- User Authentication
