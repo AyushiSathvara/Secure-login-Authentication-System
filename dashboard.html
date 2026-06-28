@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="section-eyebrow">Authenticated Session</div>
+  <h1>Welcome back, {{ user.name }} 👋</h1>
+  <p>Your account is protected with Scrypt hashing + 2FA.</p>
+</div>
+
+<!-- STAT CARDS -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem">
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--green)">🔐</div>
+    <div class="stat-label">2FA Active</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--accent);font-size:1.3rem">Scrypt</div>
+    <div class="stat-label">Password Hash</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="font-size:1.4rem">
+      <span class="badge-cg {{ 'badge-admin' if user.role=='admin' else 'badge-user' }}">
+        {{ user.role }}
+      </span>
+    </div>
+    <div class="stat-label">Account Role</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="font-size:1.1rem;color:var(--text-dim)">
+      {{ user.created_at[:10] }}
+    </div>
+    <div class="stat-label">Member Since</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;align-items:start">
+
+  <!-- LOGIN HISTORY -->
+  <div class="glass-card" style="padding:1.25rem">
+    <div class="section-eyebrow">Audit Log</div>
+    <div class="section-title">Recent Login Activity</div>
+    {% if history %}
+    <div style="overflow-x:auto">
+      <table class="cg-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Time (UTC)</th>
+            <th>IP Address</th>
+            <th>Device / Browser</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr>
+            <td>
+              {% if h.status == 'success' %}
+                <span class="badge-cg badge-success"><i class="fas fa-check"></i> Success</span>
+              {% elif h.status == 'blocked' %}
+                <span class="badge-cg badge-warning"><i class="fas fa-ban"></i> Blocked</span>
+              {% else %}
+                <span class="badge-cg badge-danger"><i class="fas fa-xmark"></i> Failed</span>
+              {% endif %}
+            </td>
+            <td class="mono" style="font-size:.77rem;white-space:nowrap">{{ h.login_time[:19] }}</td>
+            <td class="mono" style="font-size:.77rem">{{ h.ip_address or '—' }}</td>
+            <td style="font-size:.72rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              {{ h.user_agent[:80] if h.user_agent else '—' }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p style="color:var(--text-muted);font-size:.88rem;text-align:center;padding:1.5rem">No login history yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div>
+    <div class="glass-card-sm" style="margin-bottom:1rem">
+      <div class="section-title" style="font-size:.85rem">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:.6rem">
+        <a href="{{ url_for('security') }}"  class="btn-cg btn-ghost-cg" style="justify-content:flex-start;font-size:.8rem">
+          <i class="fas fa-shield-halved"></i> Security Dashboard
+        </a>
+        <a href="{{ url_for('profile') }}"   class="btn-cg btn-ghost-cg" style="justify-content:flex-start;font-size:.8rem">
+          <i class="fas fa-user"></i> View Profile
+        </a>
+        <a href="{{ url_for('blog') }}"      class="btn-cg btn-ghost-cg" style="justify-content:flex-start;font-size:.8rem">
+          <i class="fas fa-newspaper"></i> Security Blog
+        </a>
+        <a href="{{ url_for('docs') }}"      class="btn-cg btn-ghost-cg" style="justify-content:flex-start;font-size:.8rem">
+          <i class="fas fa-book"></i> Documentation
+        </a>
+        {% if user.role == 'admin' %}
+        <a href="{{ url_for('admin') }}"     class="btn-cg btn-primary-cg" style="justify-content:flex-start;font-size:.8rem">
+          <i class="fas fa-screwdriver-wrench"></i> Admin Panel
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="glass-card-sm">
+      <div class="section-title" style="font-size:.85rem">Security Tips</div>
+      <ul style="font-size:.78rem;color:var(--text-muted);list-style:none;display:flex;flex-direction:column;gap:.5rem">
+        <li><i class="fas fa-check-circle" style="color:var(--green)"></i> Never share your OTP</li>
+        <li><i class="fas fa-check-circle" style="color:var(--green)"></i> Log out on shared devices</li>
+        <li><i class="fas fa-check-circle" style="color:var(--green)"></i> Use a unique password</li>
+        <li><i class="fas fa-check-circle" style="color:var(--green)"></i> Report suspicious logins</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

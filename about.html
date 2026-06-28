@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div style="max-width:780px;margin:0 auto">
+  <div class="page-header">
+    <div class="section-eyebrow">The Project</div>
+    <h1>About CyberGuard</h1>
+    <p>A full-stack cybersecurity authentication platform — Diploma Project.</p>
+  </div>
+
+  <div class="glass-card" style="margin-bottom:1.5rem">
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem">🎯 Project Objective</h2>
+    <p style="color:var(--text-dim);line-height:1.8">
+      CyberGuard demonstrates real-world authentication security techniques used in enterprise
+      applications. Built with Python Flask and SQLite (MySQL-compatible), it showcases
+      how modern web applications protect user credentials and sessions against common attacks.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
+    <div class="glass-card-sm">
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem;color:var(--accent)">🔧 Technology Stack</h3>
+      <ul style="font-size:.82rem;color:var(--text-muted);list-style:none;display:flex;flex-direction:column;gap:.4rem">
+        <li><i class="fab fa-python" style="color:var(--accent)"></i> Python 3.11+ / Flask 3.x</li>
+        <li><i class="fas fa-database" style="color:var(--accent)"></i> SQLite (MySQL-compatible schema)</li>
+        <li><i class="fab fa-html5" style="color:var(--accent)"></i> HTML5 + CSS3 + Bootstrap 5</li>
+        <li><i class="fab fa-js" style="color:var(--accent)"></i> Vanilla JavaScript (ES6+)</li>
+        <li><i class="fas fa-font-awesome" style="color:var(--accent)"></i> Font Awesome icons</li>
+      </ul>
+    </div>
+    <div class="glass-card-sm">
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem;color:var(--accent)">🛡 Security Features</h3>
+      <ul style="font-size:.82rem;color:var(--text-muted);list-style:none;display:flex;flex-direction:column;gap:.4rem">
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Scrypt password hashing</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Two-Factor Authentication (OTP)</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Login brute-force protection</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> CSRF token protection</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Math CAPTCHA on forms</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Email verification</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Full audit logging</li>
+        <li><i class="fas fa-check" style="color:var(--green)"></i> Session timeout</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="glass-card-sm">
+    <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.5rem">👨‍💻 Developer</h3>
+    <p style="font-size:.82rem;color:var(--text-muted)">
+      Built as a Diploma in Computer Engineering project to demonstrate
+      applied cybersecurity concepts in a real web application.
+    </p>
+  </div>
+</div>
+{% endblock %}

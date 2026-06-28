@@ -1,0 +1,11 @@
+# CyberGuard v2.1 Requirements
+# Install with: pip install -r requirements.txt
+
+flask>=3.0.0
+cryptography>=42.0.0
+
+# Optional: for real MySQL instead of SQLite
+# PyMySQL>=1.1.0
+
+# Optional: load .env file automatically
+# python-dotenv>=1.0.0

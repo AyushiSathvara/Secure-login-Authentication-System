@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block head %}
+<style>
+.auth-wrap { max-width: 420px; margin: 0 auto; }
+.captcha-box {
+  background: rgba(3,7,18,.8);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: .65rem 1rem; font-family: var(--mono);
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--accent3); letter-spacing: .1em;
+  text-align: center; margin-bottom: .5rem; user-select:none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div style="text-align:center;margin-bottom:2rem">
+    <div style="width:56px;height:56px;background:rgba(99,102,241,.1);border:1px solid var(--border);
+                border-radius:14px;display:flex;align-items:center;justify-content:center;
+                margin:0 auto .75rem;font-size:1.4rem;color:var(--accent)">
+      <i class="fas fa-lock"></i>
+    </div>
+    <h1 style="font-size:1.6rem;font-weight:800">Secure Login</h1>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-top:.3rem">
+      No account? <a href="{{ url_for('register') }}">Register here</a>
+    </p>
+  </div>
+
+  <div class="glass-card">
+    <form method="POST" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+
+      <div style="margin-bottom:1rem">
+        <label class="cg-label" for="email">Email Address</label>
+        <div class="input-icon-wrap">
+          <i class="fas fa-envelope"></i>
+          <input class="cg-input" type="email" id="email" name="email"
+                 placeholder="you@example.com" required autocomplete="email"/>
+        </div>
+      </div>
+
+      <div style="margin-bottom:.5rem">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <label class="cg-label" for="password">Password</label>
+          <a href="{{ url_for('forgot_password') }}"
+             style="font-size:.75rem;color:var(--text-muted)">Forgot password?</a>
+        </div>
+        <div class="input-icon-wrap">
+          <i class="fas fa-lock"></i>
+          <input class="cg-input" type="password" id="password" name="password"
+                 placeholder="••••••••" required autocomplete="current-password"/>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div style="margin-bottom:1rem">
+        <label class="cg-label">Security Check (anti-bot)</label>
+        <div class="captcha-box">{{ captcha_q }}</div>
+        <div class="input-icon-wrap">
+          <i class="fas fa-robot"></i>
+          <input class="cg-input" type="number" name="captcha"
+                 placeholder="Enter the answer" required/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-cg btn-primary-cg"
+              style="width:100%;justify-content:center;padding:.75rem;font-size:.9rem">
+        <i class="fas fa-right-to-bracket"></i> Sign In Securely
+      </button>
+    </form>
+  </div>
+
+  <div class="glass-card-sm" style="margin-top:1rem;font-size:.78rem;color:var(--text-muted)">
+    <i class="fas fa-circle-info" style="color:var(--accent)"></i>
+    After password verification, a 6-digit OTP will be sent to your email for Two-Factor Authentication.
+    <em>In dev mode, OTPs print to the terminal.</em>
+  </div>
+</div>
+{% endblock %}

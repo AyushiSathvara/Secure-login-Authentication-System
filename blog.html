@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Blog – CyberGuard{% endblock %}
+
+{% block head %}
+<style>
+.cat-pill {
+  display:inline-flex;align-items:center;padding:.3rem .85rem;
+  border-radius:99px;font-size:.75rem;font-weight:600;
+  border:1px solid var(--border);color:var(--text-muted);
+  text-decoration:none;transition:all .15s;cursor:pointer;
+}
+.cat-pill:hover,.cat-pill.active {
+  background:rgba(99,102,241,.12);border-color:var(--border-hi);color:#fff;
+}
+.blog-card {
+  background:var(--bg-card2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.5rem;
+  transition:border-color .2s,transform .2s;
+  display:flex;flex-direction:column;gap:.75rem;
+}
+.blog-card:hover { border-color:var(--border-hi);transform:translateY(-2px); }
+.blog-cat {
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent3);font-family:var(--mono);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="section-eyebrow">Knowledge Base</div>
+  <h1>Security Blog</h1>
+  <p>Cybersecurity guides, attack breakdowns, and best practices.</p>
+</div>
+
+<!-- CATEGORY FILTER -->
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.75rem">
+  <a href="{{ url_for('blog') }}"
+     class="cat-pill {{ 'active' if not selected_cat }}">
+    <i class="fas fa-border-all" style="font-size:.65rem"></i> All
+  </a>
+  {% for c in cats %}
+  <a href="{{ url_for('blog') }}?cat={{ c.category }}"
+     class="cat-pill {{ 'active' if selected_cat==c.category }}">
+    {{ c.category }}
+  </a>
+  {% endfor %}
+</div>
+
+{% if posts %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem">
+    {% for p in posts %}
+    <div class="blog-card">
+      <div>
+        <div class="blog-cat"><i class="fas fa-tag"></i> {{ p.category }}</div>
+        <h2 style="font-size:1rem;font-weight:700;margin:.4rem 0 0">
+          <a href="{{ url_for('blog_post',slug=p.slug) }}"
+             style="color:var(--text)">{{ p.title }}</a>
+        </h2>
+      </div>
+      <p style="font-size:.82rem;color:var(--text-muted);line-height:1.65;flex:1">
+        {{ p.content[:150] }}{% if p.content|length > 150 %}…{% endif %}
+      </p>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:.75rem;color:var(--text-muted)">
+          <i class="fas fa-user" style="margin-right:.3rem"></i>{{ p.author_name }}
+          &nbsp;·&nbsp;
+          <i class="fas fa-calendar" style="margin-right:.3rem"></i>{{ p.created_at[:10] }}
+        </div>
+        <a href="{{ url_for('blog_post',slug=p.slug) }}"
+           style="font-size:.75rem;display:inline-flex;align-items:center;gap:.3rem">
+          Read <i class="fas fa-arrow-right" style="font-size:.6rem"></i>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="glass-card" style="text-align:center;padding:3rem">
+    <i class="fas fa-newspaper" style="font-size:2rem;color:var(--text-muted);display:block;margin-bottom:1rem"></i>
+    <p style="color:var(--text-muted)">No posts in this category yet.</p>
+    <a href="{{ url_for('blog') }}" class="btn-cg btn-ghost-cg" style="margin-top:1rem">View all</a>
+  </div>
+{% endif %}
+{% endblock %}

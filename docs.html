@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Security Documentation{% endblock %}
+
+{% block content %}
+<div style="max-width:860px;margin:0 auto">
+  <div class="page-header">
+    <div class="section-eyebrow">CyberGuard Security Features</div>
+    <h1>Technical Documentation</h1>
+    <p>How each security layer works :—</p>
+  </div>
+
+  {% set sections = [
+    {
+      "icon": "fa-key", "color": "var(--accent)",
+      "title": "1. Password Hashing — Scrypt KDF",
+      "content": "Passwords are never stored in plain text. CyberGuard uses the Scrypt key derivation function (KDF), a memory-hard algorithm that requires ~64 MB of RAM per hash computation. This makes GPU and ASIC-based brute-force attacks economically infeasible. Each password gets a unique 256-bit random salt, meaning two identical passwords produce completely different hashes. The final stored value is: salt_hex$hash_hex.",
+      "code": "hashlib.scrypt(password, salt=salt, n=2**14, r=8, p=1)"
+    },
+    {
+      "icon": "fa-mobile-screen-button", "color": "var(--accent3)",
+      "title": "2. Two-Factor Authentication (2FA)",
+      "content": "After successful password verification, a 6-digit OTP (One-Time Password) is generated using a cryptographically secure random number generator (secrets module). The OTP is stored hashed in the database with a 10-minute expiry window. Only after entering the correct OTP does the user receive a session. This ensures that a stolen password alone cannot grant access.",
+      "code": "otp = str(secrets.randbelow(900000) + 100000)  # 100000–999999"
+    },
+    {
+      "icon": "fa-ban", "color": "var(--red)",
+      "title": "3. Brute-Force Login Protection",
+      "content": "The system counts consecutive failed login attempts per account. After 5 failures, the account is locked for 15 minutes. The lockout timestamp is stored in the database and checked on every login attempt. A generic error message ('Invalid email or password') is shown in all failure cases to prevent user enumeration attacks — an attacker cannot tell if the email exists.",
+      "code": "MAX_LOGIN_ATTEMPTS = 5 | LOCKOUT_MINUTES = 15"
+    },
+    {
+      "icon": "fa-robot", "color": "var(--green)",
+      "title": "4. CAPTCHA — Bot Prevention",
+      "content": "A server-generated arithmetic CAPTCHA is displayed on login and registration forms. The question and correct answer are generated on the server, and the answer is stored in the session (not sent to the client). On submission, the server compares the user's answer to the stored value. This prevents automated scripts from submitting forms repeatedly.",
+      "code": "q = f'{a} + {b}',  answer = a + b   # stored in session"
+    },
+    {
+      "icon": "fa-envelope-circle-check", "color": "var(--yellow)",
+      "title": "5. Email Verification",
+      "content": "After registration, the account is flagged as unverified. A unique, cryptographically random URL token (32 bytes = 256 bits of entropy) is stored in the database with a 24-hour expiry. The token is emailed to the user. When clicked, the token is validated and marked as used. Unverified accounts cannot log in, preventing fake account registration.",
+      "code": "token = secrets.token_urlsafe(32)   # 256-bit entropy URL token"
+    },
+    {
+      "icon": "fa-unlock-keyhole", "color": "var(--accent2)",
+      "title": "6. Secure Password Reset",
+      "content": "Password reset uses the same token mechanism as email verification. The reset link contains a single-use token that expires in 30 minutes. On the reset form, the new password is strength-checked before being rehashed with Scrypt and saved. The old token is invalidated immediately after use. Failed login attempts are also cleared on a successful reset.",
+      "code": "token = secrets.token_urlsafe(32)  → emailed → verified → rehash(new_pw)"
+    },
+    {
+      "icon": "fa-shield-halved", "color": "var(--accent)",
+      "title": "7. CSRF Protection",
+      "content": "Cross-Site Request Forgery (CSRF) attacks trick authenticated users into submitting malicious requests. CyberGuard generates a per-session random CSRF token that is embedded as a hidden field in every HTML form. On POST, the server verifies this token before processing the request. If the token is absent or wrong, the request is rejected with a 403 error.",
+      "code": "<input type='hidden' name='_csrf' value='{{ csrf_token() }}'/>"
+    },
+    {
+      "icon": "fa-code", "color": "var(--accent3)",
+      "title": "8. SQL Injection Prevention",
+      "content": "All database queries use parameterised statements — the ? placeholder syntax in Python's sqlite3 module. User input is never concatenated into SQL strings. Parameterised queries separate SQL code from data, making it impossible for an attacker to alter the query structure by injecting SQL syntax into input fields.",
+      "code": "db.execute('SELECT * FROM users WHERE email=?', (email,))"
+    },
+    {
+      "icon": "fa-file-shield", "color": "var(--green)",
+      "title": "9. XSS Prevention",
+      "content": "Cross-Site Scripting (XSS) attacks inject malicious scripts into web pages. CyberGuard uses Jinja2's automatic HTML escaping for all template variables — any <script> tags or HTML entities in user input are rendered as harmless text. The server also calls html.escape() on data before it enters the database, providing a defence-in-depth approach.",
+      "code": "Jinja2: {{ user.name }} auto-escaped | server: html.escape(value)"
+    },
+    {
+      "icon": "fa-scroll", "color": "var(--yellow)",
+      "title": "10. Audit Logging",
+      "content": "Every login attempt — successful, failed, or blocked — is recorded in the login_history table with the user ID, UTC timestamp, IP address, and browser User-Agent string. This creates a complete audit trail that can detect brute-force attacks, unusual login locations, or compromised accounts. The Security Dashboard visualises this data per user.",
+      "code": "login_history(user_id, ip_address, user_agent, status, login_time)"
+    }
+  ] %}
+
+  {% for s in sections %}
+  <div class="glass-card" style="margin-bottom:1.25rem">
+    <div style="display:flex;align-items:flex-start;gap:1rem">
+      <div style="width:42px;height:42px;border-radius:10px;flex-shrink:0;
+                  background:rgba(99,102,241,.1);border:1px solid var(--border);
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:1.1rem;color:{{ s.color }}">
+        <i class="fas {{ s.icon }}"></i>
+      </div>
+      <div style="flex:1">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.6rem">{{ s.title }}</h3>
+        <p style="font-size:.85rem;color:var(--text-dim);line-height:1.75;margin-bottom:.75rem">{{ s.content }}</p>
+        <div style="background:rgba(3,7,18,.8);border:1px solid var(--border);border-radius:6px;
+                    padding:.55rem 1rem;font-family:var(--mono);font-size:.75rem;color:var(--accent3)">
+          {{ s.code }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

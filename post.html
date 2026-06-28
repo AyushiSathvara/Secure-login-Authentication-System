@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block head %}
+<style>
+.post-body { color:var(--text-dim);line-height:1.85;font-size:.95rem;white-space:pre-wrap; }
+.related-card {
+  background:var(--bg-card2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1rem;transition:border-color .15s;
+}
+.related-card:hover { border-color:var(--border-hi); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:780px;margin:0 auto">
+  <div style="margin-bottom:1.25rem">
+    <a href="{{ url_for('blog') }}"
+       style="font-size:.82rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:.4rem">
+      <i class="fas fa-arrow-left"></i> Back to Blog
+    </a>
+  </div>
+
+  <!-- HEADER -->
+  <div style="margin-bottom:2rem">
+    <div style="font-family:var(--mono);font-size:.7rem;color:var(--accent3);
+                letter-spacing:.15em;text-transform:uppercase;margin-bottom:.6rem">
+      <i class="fas fa-tag"></i> {{ post.category }}
+    </div>
+    <h1 style="font-size:2rem;font-weight:900;line-height:1.15;margin-bottom:.75rem">
+      {{ post.title }}
+    </h1>
+    <div style="display:flex;align-items:center;gap:1.25rem;font-size:.8rem;color:var(--text-muted)">
+      <span><i class="fas fa-user" style="margin-right:.35rem"></i>{{ post.author_name }}</span>
+      <span><i class="fas fa-calendar" style="margin-right:.35rem"></i>{{ post.created_at[:10] }}</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="glass-card" style="margin-bottom:2rem">
+    <article class="post-body">{{ post.content }}</article>
+  </div>
+
+  <!-- RELATED POSTS -->
+  {% if related %}
+  <div>
+    <div class="section-eyebrow">More in {{ post.category }}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:.75rem">
+      {% for r in related %}
+      <div class="related-card">
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:.35rem">
+          <a href="{{ url_for('blog_post',slug=r.slug) }}" style="color:var(--text)">{{ r.title }}</a>
+        </div>
+        <div style="font-size:.75rem;color:var(--text-muted)">{{ r.created_at[:10] }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="section-eyebrow">Administrator</div>
+  <h1>Admin Panel</h1>
+  <p>Manage users, posts, and monitor security events.</p>
+</div>
+
+<!-- STAT CARDS -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2rem">
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--accent)">{{ stats.total }}</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--green)">{{ stats.active }}</div>
+    <div class="stat-label">Active</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--red)">{{ stats.blocked }}</div>
+    <div class="stat-label">Blocked</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--yellow)">{{ stats.unverified }}</div>
+    <div class="stat-label">Unverified</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--red);font-size:1.4rem">{{ stats.failed_today }}</div>
+    <div class="stat-label">Failed Today</div>
+  </div>
+</div>
+
+<!-- ENCRYPTION EXPLANATION PANEL -->
+<div class="glass-card" style="margin-bottom:2rem;border-color:rgba(99,102,241,.35)">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+    <div style="width:38px;height:38px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);
+                border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:1.1rem">
+      <i class="fas fa-lock"></i>
+    </div>
+    <div>
+      <div class="section-eyebrow" style="margin:0">Database Encryption Layer</div>
+      <div style="font-size:.95rem;font-weight:700">How User Data Is Stored (What Attackers Would See)</div>
+    </div>
+  </div>
+
+  <!-- RAW DATABASE VIEW -->
+  <div style="background:rgba(3,7,18,.95);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1.25rem;overflow-x:auto">
+    <div style="font-family:var(--mono);font-size:.7rem;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.1em">
+      $ sqlite3 cyberguard.db "SELECT name, email, email_hash, password_hash FROM users;"
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.72rem;min-width:700px">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:.4rem .75rem;color:#94a3b8;border-bottom:1px solid var(--border);width:90px">name</th>
+          <th style="text-align:left;padding:.4rem .75rem;color:#6366f1;border-bottom:1px solid var(--border)">email <span style="color:#475569;font-weight:400">(Fernet AES-128 encrypted)</span></th>
+          <th style="text-align:left;padding:.4rem .75rem;color:#f59e0b;border-bottom:1px solid var(--border)">email_hash <span style="color:#475569;font-weight:400">(HMAC-SHA256)</span></th>
+          <th style="text-align:left;padding:.4rem .75rem;color:#ef4444;border-bottom:1px solid var(--border)">password_hash <span style="color:#475569;font-weight:400">(Scrypt)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in enc_samples %}
+        <tr>
+          <td style="padding:.45rem .75rem;color:#e2e8f0">{{ s.name }}</td>
+          <td style="padding:.45rem .75rem;color:#818cf8;word-break:break-all">{{ s.email_cipher }}</td>
+          <td style="padding:.45rem .75rem;color:#fbbf24">{{ s.email_hmac }}...</td>
+          <td style="padding:.45rem .75rem;color:#f87171">{{ s.pw_preview }}...</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3 EXPLANATION BOXES -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+    <div style="background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:1rem">
+      <div style="font-size:.82rem;font-weight:700;color:#818cf8;margin-bottom:.5rem">
+        <i class="fas fa-envelope"></i> Email → Fernet AES-128
+      </div>
+      <div style="font-size:.77rem;color:var(--text-muted);line-height:1.65">
+        Emails encrypted with AES-128-CBC + HMAC-SHA256. Only the server with the secret <code style="color:#6366f1">ENCRYPTION_KEY</code> can decrypt. Database admins see only ciphertext.
+      </div>
+    </div>
+    <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:1rem">
+      <div style="font-size:.82rem;font-weight:700;color:#fbbf24;margin-bottom:.5rem">
+        <i class="fas fa-fingerprint"></i> Email Hash → HMAC-SHA256
+      </div>
+      <div style="font-size:.77rem;color:var(--text-muted);line-height:1.65">
+        A deterministic but irreversible fingerprint of the email. Used for fast <code style="color:#fbbf24">WHERE email_hash=?</code> lookups without decrypting every row.
+      </div>
+    </div>
+    <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:1rem">
+      <div style="font-size:.82rem;font-weight:700;color:#f87171;margin-bottom:.5rem">
+        <i class="fas fa-key"></i> Password → Scrypt KDF
+      </div>
+      <div style="font-size:.77rem;color:var(--text-muted);line-height:1.65">
+        One-way key derivation. Needs 64 MB RAM per guess — GPU brute-force is infeasible. Each user has a unique random salt so identical passwords look different.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP ROW: PUBLISH POST + SECURITY MONITOR -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;align-items:start">
+
+  <!-- PUBLISH POST -->
+  <div class="glass-card">
+    <div class="section-eyebrow">Content</div>
+    <div class="section-title">Publish Blog Post</div>
+    <form method="POST" action="{{ url_for('admin_post') }}" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+      <div style="margin-bottom:.75rem">
+        <label class="cg-label">Title</label>
+        <input class="cg-input" name="title" placeholder="Post title" required/>
+      </div>
+      <div style="margin-bottom:.75rem">
+        <label class="cg-label">Category</label>
+        <select class="cg-input" name="category">
+          <option value="Authentication">Authentication</option>
+          <option value="Cryptography">Cryptography</option>
+          <option value="Web Security">Web Security</option>
+          <option value="Network Security">Network Security</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+      <div style="margin-bottom:.75rem">
+        <label class="cg-label">Content</label>
+        <textarea class="cg-input" name="content" rows="7" placeholder="Write your post here..." required></textarea>
+      </div>
+      <button type="submit" class="btn-cg btn-primary-cg" style="width:100%;justify-content:center">
+        <i class="fas fa-paper-plane"></i> Publish Post
+      </button>
+    </form>
+  </div>
+
+  <!-- RECENT LOGIN EVENTS -->
+  <div class="glass-card">
+    <div class="section-eyebrow">Security Monitor</div>
+    <div class="section-title">Recent Login Events</div>
+    {% if history %}
+    <div style="overflow-x:auto">
+      <table class="cg-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Status</th>
+            <th>IP</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history[:15] %}
+          <tr>
+            <td style="font-size:.78rem">{{ h.uname or 'Unknown' }}</td>
+            <td>
+              {% if h.status == 'success' %}
+                <span class="badge-cg badge-success" style="font-size:.65rem">OK</span>
+              {% elif h.status == 'blocked' %}
+                <span class="badge-cg badge-warning" style="font-size:.65rem">BLK</span>
+              {% else %}
+                <span class="badge-cg badge-danger" style="font-size:.65rem">FAIL</span>
+              {% endif %}
+            </td>
+            <td class="mono" style="font-size:.72rem">{{ h.ip_address or '—' }}</td>
+            <td class="mono" style="font-size:.7rem;white-space:nowrap">{{ h.login_time[11:19] if h.login_time else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:1.5rem">No login history yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- USERS TABLE -->
+<div class="glass-card" style="margin-bottom:1.5rem;padding:1.25rem">
+  <div class="section-eyebrow">Access Control</div>
+  <div class="section-title">All Users ({{ users|length }})</div>
+  <div style="overflow-x:auto">
+    <table class="cg-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email (decrypted)</th>
+          <th>Role</th>
+          <th>Verified</th>
+          <th>Status</th>
+          <th>Attempts</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="mono" style="font-size:.72rem;color:var(--text-muted)">{{ u.id }}</td>
+          <td style="font-weight:600;font-size:.84rem">{{ u.name }}</td>
+          <td class="mono" style="font-size:.75rem">{{ u.email_plain }}</td>
+          <td>
+            <span class="badge-cg {{ 'badge-admin' if u.role == 'admin' else 'badge-user' }}">
+              {{ u.role }}
+            </span>
+          </td>
+          <td>
+            {% if u.is_verified %}
+              <span style="color:var(--green)"><i class="fas fa-check-circle"></i></span>
+            {% else %}
+              <span style="color:var(--red)"><i class="fas fa-times-circle"></i></span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.is_blocked %}
+              <span class="badge-cg badge-danger">Blocked</span>
+            {% else %}
+              <span class="badge-cg badge-success">Active</span>
+            {% endif %}
+          </td>
+          <td class="mono" style="font-size:.78rem;color:{{ 'var(--red)' if u.login_attempts >= 3 else 'var(--text-muted)' }}">
+            {{ u.login_attempts }}
+          </td>
+          <td style="font-size:.75rem;color:var(--text-muted)">{{ u.created_at[:10] if u.created_at else '—' }}</td>
+          <td>
+            {% if u.role != 'admin' %}
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <form method="POST" action="{{ url_for('admin_block', uid=u.id) }}" style="display:inline">
+                <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+                <button type="submit" class="{{ 'btn-cg btn-success-cg' if u.is_blocked else 'btn-cg btn-danger-cg' }}">
+                  {{ 'Unblock' if u.is_blocked else 'Block' }}
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('admin_delete', uid=u.id) }}" style="display:inline"
+                    onsubmit="return confirm('Delete {{ u.name }}? This cannot be undone.')">
+                <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn-cg btn-danger-cg">Delete</button>
+              </form>
+            </div>
+            {% else %}
+              <span style="font-size:.75rem;color:var(--text-muted)">Protected</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- POSTS TABLE -->
+<div class="glass-card" style="padding:1.25rem">
+  <div class="section-eyebrow">Content Management</div>
+  <div class="section-title">All Posts ({{ posts|length }})</div>
+  {% if posts %}
+  <div style="overflow-x:auto">
+    <table class="cg-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Author</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in posts %}
+        <tr>
+          <td>
+            <a href="{{ url_for('blog_post', slug=p.slug) }}"
+               style="color:var(--text);font-weight:600;font-size:.85rem">
+              {{ p.title }}
+            </a>
+          </td>
+          <td>
+            <span class="badge-cg badge-user" style="font-size:.68rem">{{ p.category }}</span>
+          </td>
+          <td style="font-size:.8rem;color:var(--text-muted)">{{ p.author_name }}</td>
+          <td class="mono" style="font-size:.75rem;color:var(--text-muted)">{{ p.created_at[:10] if p.created_at else '—' }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('admin_delete_post', pid=p.id) }}"
+                  onsubmit="return confirm('Delete this post?')" style="display:inline">
+              <input type="hidden" name="_csrf" value="{{ csrf_token() }}"/>
+              <button type="submit" class="btn-cg btn-danger-cg">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:1.5rem">No posts yet. Publish one above!</p>
+  {% endif %}
+</div>
+{% endblock %}

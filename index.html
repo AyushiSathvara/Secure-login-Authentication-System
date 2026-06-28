@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block title %}CyberGuard{% endblock %}
+
+{% block head %}
+<style>
+/* HERO */
+.hero {
+  min-height: 86vh;
+  display: flex; align-items: center;
+  padding: 3rem 0 2rem;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 4rem; align-items: center;
+  width: 100%;
+}
+.hero-eyebrow {
+  font-family: var(--mono); font-size: .72rem; font-weight: 600;
+  color: var(--accent3); letter-spacing: .2em; text-transform: uppercase;
+  margin-bottom: .9rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.hero-eyebrow::before {
+  content: ''; display: inline-block;
+  width: 24px; height: 2px; background: var(--accent3);
+}
+.hero-h1 {
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  font-weight: 900; line-height: 1.05;
+  letter-spacing: -.02em; margin-bottom: 1.25rem;
+}
+.hero-h1 span {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 1.05rem; color: var(--text-dim);
+  line-height: 1.75; margin-bottom: 2rem; max-width: 30rem;
+}
+.hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+.hero-badges {
+  display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 2rem;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .75rem; color: var(--text-dim);
+  background: rgba(99,102,241,.06);
+  border: 1px solid var(--border);
+  padding: .3rem .8rem; border-radius: 99px;
+}
+.hero-badge i { color: var(--green); font-size: .65rem; }
+
+/* VISUAL PANEL */
+.hero-visual {
+  position: relative;
+  background: linear-gradient(145deg, rgba(15,23,42,.9), rgba(3,7,18,.95));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2rem;
+  height: 420px;
+  overflow: hidden;
+}
+.hero-visual::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 60% 20%, rgba(99,102,241,.12), transparent 60%);
+}
+.v-terminal {
+  font-family: var(--mono); font-size: .75rem; color: var(--text-dim);
+  line-height: 1.9;
+}
+.v-terminal .cmd { color: var(--accent3); }
+.v-terminal .ok  { color: var(--green); }
+.v-terminal .warn{ color: var(--yellow); }
+.v-terminal .err { color: var(--red); }
+.v-terminal .dim { color: var(--text-muted); }
+.v-orbit {
+  position: absolute; bottom: -30px; right: -30px;
+  width: 180px; height: 180px; border-radius: 50%;
+  border: 1px dashed rgba(99,102,241,.3);
+}
+.v-badge {
+  position: absolute; bottom: 1.5rem; left: 1.5rem;
+  display: flex; align-items: center; gap: .5rem;
+  background: rgba(3,7,18,.9); border: 1px solid rgba(16,185,129,.3);
+  border-radius: 99px; padding: .4rem .9rem;
+  font-size: .75rem; color: var(--text-dim);
+}
+.pulse {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 6px rgba(16,185,129,.8); }
+  50%      { box-shadow: 0 0 16px rgba(16,185,129,.3); }
+}
+
+/* FEATURES */
+.features { padding: 4rem 0; }
+.feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; margin-top: 2rem; }
+.feat-card {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: border-color .2s, transform .2s;
+}
+.feat-card:hover { border-color: var(--border-hi); transform: translateY(-2px); }
+.feat-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem; font-size: 1.15rem;
+  background: rgba(99,102,241,.12);
+  border: 1px solid rgba(99,102,241,.2);
+  color: var(--accent);
+}
+.feat-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+.feat-card p  { font-size: .82rem; color: var(--text-muted); line-height: 1.6; }
+
+/* POSTS */
+.post-mini {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 1rem 0; border-bottom: 1px solid var(--border);
+}
+.post-mini:last-child { border-bottom: none; }
+.post-mini-date {
+  font-family: var(--mono); font-size: .7rem;
+  color: var(--text-muted); white-space: nowrap; padding-top: .15rem;
+}
+.post-mini a { font-size: .9rem; font-weight: 600; color: var(--text); }
+.post-mini a:hover { color: var(--accent); }
+
+@media (max-width:900px) {
+  .hero-grid  { grid-template-columns:1fr; }
+  .hero-visual { display:none; }
+  .feat-grid  { grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:600px) {
+  .feat-grid { grid-template-columns:1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-eyebrow">Cybersecurity Authentication Platform</div>
+      <h1 class="hero-h1">Secure by Design.<br><span>Defend by Default.</span></h1>
+      <p class="hero-sub">
+        CyberGuard demonstrates enterprise-grade authentication security —
+        Scrypt hashing, 2FA, login protection, CSRF defence, and full audit trails
+        built with Python Flask.
+      </p>
+      <div class="hero-btns">
+        {% if user %}
+          <a href="{{ url_for('dashboard') }}" class="btn-cg btn-primary-cg">
+            <i class="fas fa-gauge-high"></i> Dashboard
+          </a>
+          <a href="{{ url_for('security') }}" class="btn-cg btn-ghost-cg">
+            <i class="fas fa-shield-halved"></i> Security Score
+          </a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn-cg btn-primary-cg">
+            <i class="fas fa-user-shield"></i> Get Protected
+          </a>
+          <a href="{{ url_for('docs') }}" class="btn-cg btn-ghost-cg">
+            <i class="fas fa-book"></i> How It Works
+          </a>
+        {% endif %}
+      </div>
+      <div class="hero-badges">
+        <span class="hero-badge"><i class="fas fa-circle"></i> Scrypt Hashing</span>
+        <span class="hero-badge"><i class="fas fa-circle"></i> 2FA OTP</span>
+        <span class="hero-badge"><i class="fas fa-circle"></i> CSRF Protected</span>
+        <span class="hero-badge"><i class="fas fa-circle"></i> Login Lockout</span>
+        <span class="hero-badge"><i class="fas fa-circle"></i> Audit Log</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="v-terminal">
+        <div class="dim"># CyberGuard Security Engine v2.0</div>
+        <div>&nbsp;</div>
+        <div><span class="cmd">$</span> authenticating user...</div>
+        <div class="dim">  → verifying scrypt hash...</div>
+        <div class="ok">  ✓ password valid</div>
+        <div class="dim">  → checking lockout status...</div>
+        <div class="ok">  ✓ account active</div>
+        <div class="dim">  → generating OTP...</div>
+        <div class="ok">  ✓ OTP dispatched [expires: 10m]</div>
+        <div class="dim">  → validating CSRF token...</div>
+        <div class="ok">  ✓ token valid</div>
+        <div class="dim">  → writing login_history...</div>
+        <div class="ok">  ✓ audit entry created</div>
+        <div>&nbsp;</div>
+        <div class="ok">SESSION ESTABLISHED ────────────</div>
+        <div class="dim">  user:  sathv@cyberguard.com</div>
+        <div class="dim">  role:  user</div>
+        <div class="dim">  2fa :  verified</div>
+        <div class="dim">  ip  :  192.168.1.x</div>
+        <div>&nbsp;</div>
+        <div><span class="cmd">$</span> <span class="pulse" style="color:var(--green)">▌</span></div>
+      </div>
+      <div class="v-orbit"></div>
+      <div class="v-badge">
+        <span class="status-dot dot-green pulse"></span> All systems secure
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-eyebrow">What We Protect</div>
+  <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem">Enterprise Security Features</h2>
+  <p style="color:var(--text-muted);font-size:.9rem">Every layer of the authentication flow is hardened.</p>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-key"></i></div>
+      <h3>Scrypt Password Hashing</h3>
+      <p>Memory-hard KDF with per-user random salt. 64 MB RAM per hash — resistant to GPU brute-force attacks.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.2);color:var(--accent3)"><i class="fas fa-mobile-screen"></i></div>
+      <h3>Two-Factor Authentication</h3>
+      <p>6-digit OTP sent after password verification. 10-minute expiry window with single-use enforcement.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.2);color:var(--red)"><i class="fas fa-ban"></i></div>
+      <h3>Brute-Force Lockout</h3>
+      <p>Account locks after {{ config.MAX_LOGIN_ATTEMPTS if config else 5 }} failed attempts. Timed lockout with clear status messaging.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.2);color:var(--green)"><i class="fas fa-robot"></i></div>
+      <h3>Math CAPTCHA</h3>
+      <p>Server-generated arithmetic CAPTCHA blocks automated bots on login and registration pages.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.2);color:var(--accent2)"><i class="fas fa-scroll"></i></div>
+      <h3>Full Audit Logging</h3>
+      <p>Every login attempt — success or failure — is logged with IP address, device info, and timestamp.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2);color:var(--yellow)"><i class="fas fa-shield-halved"></i></div>
+      <h3>CSRF Protection</h3>
+      <p>Per-session CSRF tokens on all POST forms. XSS prevention via Jinja2 auto-escape + server-side sanitisation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG PREVIEW -->
+{% if posts %}
+<section style="padding:2rem 0 1rem">
+  <div class="section-eyebrow">Latest Articles</div>
+  <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:1.25rem">From the Security Blog</h2>
+  <div class="glass-card" style="padding:1rem 1.5rem">
+    {% for p in posts %}
+    <div class="post-mini">
+      <div class="post-mini-date">{{ p.created_at[:10] }}</div>
+      <div>
+        <a href="{{ url_for('blog_post', slug=p.slug) }}">{{ p.title }}</a>
+        <div style="font-size:.78rem;color:var(--text-muted);margin-top:.2rem">By {{ p.author_name }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div style="margin-top:1rem">
+    <a href="{{ url_for('blog') }}" class="btn-cg btn-ghost-cg btn-sm" style="font-size:.8rem;padding:.4rem 1rem">
+      View all posts <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

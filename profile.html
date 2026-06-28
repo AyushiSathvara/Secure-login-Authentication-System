@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto">
+  <div class="page-header">
+    <div class="section-eyebrow">Account</div>
+    <h1>Your Profile</h1>
+  </div>
+
+  <div class="glass-card">
+    <!-- Avatar -->
+    <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.5rem;
+                padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <div style="width:64px;height:64px;border-radius:50%;
+                  background:linear-gradient(135deg,var(--accent),var(--accent2));
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;font-weight:800;color:#fff;flex-shrink:0">
+        {{ user.name[0].upper() }}
+      </div>
+      <div>
+        <div style="font-size:1.2rem;font-weight:800">{{ user.name }}</div>
+        <div style="font-size:.82rem;color:var(--text-muted)">{{ user.email }}</div>
+        <div style="margin-top:.3rem">
+          <span class="badge-cg {{ 'badge-admin' if user.role=='admin' else 'badge-user' }}">
+            {{ user.role }}
+          </span>
+          {% if user.is_verified %}
+            <span class="badge-cg badge-success" style="margin-left:.3rem"><i class="fas fa-check"></i> Verified</span>
+          {% else %}
+            <span class="badge-cg badge-danger"  style="margin-left:.3rem">Unverified</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Details table -->
+    <table class="cg-table">
+      <tr><th style="width:160px">Full Name</th>
+          <td>{{ user.name }}</td></tr>
+      <tr><th>Email</th>
+          <td class="mono" style="font-size:.83rem">{{ user.email }}</td></tr>
+      <tr><th>Role</th>
+          <td>{{ user.role }}</td></tr>
+      <tr><th>Email Verified</th>
+          <td>{{ '✅ Yes' if user.is_verified else '❌ No' }}</td></tr>
+      <tr><th>Account Status</th>
+          <td>{{ '🔴 Blocked' if user.is_blocked else '🟢 Active' }}</td></tr>
+      <tr><th>Failed Attempts</th>
+          <td>{{ user.login_attempts }}</td></tr>
+      <tr><th>Password Hash</th>
+          <td class="mono" style="font-size:.72rem;color:var(--text-muted)">
+            {{ user.password_hash[:32] }}… <span style="color:var(--accent)">[Scrypt+salt]</span>
+          </td></tr>
+      <tr><th>Member Since</th>
+          <td>{{ user.created_at[:10] }}</td></tr>
+    </table>
+  </div>
+
+  <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap">
+    <a href="{{ url_for('security') }}" class="btn-cg btn-ghost-cg">
+      <i class="fas fa-shield-halved"></i> Security Dashboard
+    </a>
+    <a href="{{ url_for('forgot_password') }}" class="btn-cg btn-ghost-cg">
+      <i class="fas fa-key"></i> Change Password
+    </a>
+  </div>
+</div>
+{% endblock %}

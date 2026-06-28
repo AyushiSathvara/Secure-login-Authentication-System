@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} Error{% endblock %}
+{% block content %}
+<div style="min-height:60vh;display:flex;flex-direction:column;align-items:center;
+            justify-content:center;text-align:center;gap:1rem">
+  <div style="font-size:5rem;font-weight:900;
+              background:linear-gradient(135deg,var(--accent),var(--accent2));
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+              background-clip:text;opacity:.5">
+    {{ code }}
+  </div>
+  <h1 style="font-size:1.3rem;font-weight:700">{{ msg }}</h1>
+  <p style="color:var(--text-muted);font-size:.9rem">
+    {% if code == 403 %}You don't have permission to access this page.
+    {% elif code == 404 %}The page you're looking for doesn't exist.
+    {% else %}Something went wrong on our end.{% endif %}
+  </p>
+  <a href="{{ url_for('home') }}" class="btn-cg btn-primary-cg" style="margin-top:.5rem">
+    <i class="fas fa-house"></i> Go Home
+  </a>
+</div>
+{% endblock %}
